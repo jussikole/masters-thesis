@@ -1,0 +1,212 @@
+
+\documentclass[english,12pt,a4paper,pdftex]{report}
+%\documentclass[english,12pt,a4paper,dvips]{article}
+\usepackage[sci]{aaltothesis}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,urlcolor=red,linkcolor=black,citecolor=black,pdfstartview=FitH]{hyperref}
+
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{algorithm2e}
+\usepackage[toc,page]{appendix}
+\usepackage{rotating}
+\usepackage{color, colortbl}
+
+\usepackage{array}
+\usepackage{multirow}
+
+\usepackage{amsfonts,amssymb,amsbsy}  
+
+\usepackage{fancyvrb}
+
+
+\setlength{\hoffset}{-1in}
+\setlength{\oddsidemargin}{35mm}
+\setlength{\evensidemargin}{25mm}
+\setlength{\textwidth}{15cm}
+\setlength{\voffset}{-1in}
+\setlength{\headsep}{7mm}
+\setlength{\headheight}{1em}
+\setlength{\topmargin}{25mm-\headheight-\headsep}
+\setlength{\textheight}{23cm}
+
+
+
+% Colors
+\definecolor{Good}{rgb}{0.44,1.00,0.25}
+\definecolor{Neutral}{rgb}{0.42,0.85,0.18}
+\definecolor{Bad}{rgb}{1.00,0.26,0.26}
+
+
+\begin{document}
+
+\department{Department of Mathematics and System Analysis}%
+{Matematiikan ja systeemianalyysin laitos}
+\professorship{Systems and Operations Research}{Systeemi- ja operaatiotutkimus}
+\code{T3020}
+
+
+\univdegree{MSc}
+\author{Jussi Kolehmainen}
+
+\thesistitle{Predicting Complex Events in Sensor Data}{Monimutkaisten tapahtumien ennustaminen sensoridatasta}
+
+\place{Espoo}
+\date{08.08.2013}
+
+\supervisor{Prof.\ Ahti Salo}{Prof.\ Ahti Salo}
+\instructor{M.Sc.\ (Tech.) Antti Aalto}{DI Antti Aalto}
+
+\uselogo{aaltoRed}{''}
+
+\makecoverpage
+
+
+
+\keywords{monimutkaisten tapahtumien prosessointi, ennustaminen, ymp\"arist\"odata, taloautomaatio, tukivektorikoneet, wavelet-analyysi}
+%% Tiivistelm�n tekstiosa
+\begin{abstractpage}[finnish]
+Monimutkaisten tapahtumien prosessointi (CEP) on teknologia, joka analysoi datavirtoja ja tunnistaa monimutkaisia tilanteita reaaliajassa. Tunnistettavat tilanteet m\"a\"aritell\"a\"an EPL-lauseilla, joiden kirjoittamiseen tarvitaan tutkittavaa ilmi\"ot\"a tuntevia asiantuntijoita. Yhdess\"a matemaattisten ennustemenetelmien kanssa CEP mahdollistaa tapahtumien ennustamisen ja niist\"a varoittamisen.
+\\ 
+\\
+T\"ass\"a ty\"oss\"a k\"ayn l\"api mit\"a ennustava tapahtumaprosessointi on ja kuinka eri komponenteista voidaan kasata j\"arjestelm\"a reaalimaailman tapahtumien ennustamiseen. Matemaattisina ty\"okaluina k\"ayt\"an kahta mallia: et\"aisyysmittaan perustuvaa mallia ja piirrevektoriin perustuvaa mallia. Ensimm\"ainen k\"aytt\"a\"a DTW:t\"a et\"aisyysmittana ja k:n l\"ahimm\"an naapurin (kNN) algoritmia luokitteluun. J\"alkimm\"ainen pohjautuu wavelet-analysiin ja tukivektorikoneisiin (SVM).
+\\
+\\
+Kokeellisess\"a osiossa esittelen taloautomaation sovellutuksena ennustavalle tapahtumaprosessoinnille. Testeiss\"a k\"ayt\"an todellisia sensoreita, joille ennustan sis\"ailmayhdistyksen asettamien raja-arvojen ylityksi\"a. T\"am\"an lis\"aksi arvioin rakentamani systeemin suorituskyky\"a.
+\\
+\\
+Hiilidioksidille ja haihtuville orgaanisille yhdisteille ensimm\"ainen malli antaa oikeita h\"alytyksi\"a yli 75 \%:ssa tapauksista ja p\"a\"asee alle 10 \%:iin v\"a\"arien h\"alytysten osalta. J\"alkimm\"ainen malli toimii nopeammin, mutta sen konfigurointi osoittautuu haastavaksi, mink\"a takia tulokset ovat huonompia. Jatkotutkimusten aiheiksi suosittelen erityisesti j\"arkev\"amp\"a\"a tapahtumam\"a\"arittely\"a ja systeemin aikaparametrien parempaa optimointia.
+\end{abstractpage}
+
+\newpage
+
+\keywords{complex event processing, predictive analytics, environmental data, house automation, support vector machines, wavelet analysis}
+%% Abstract text
+\begin{abstractpage}[english]
+Complex event processing (CEP) analyzes data streams and detects complicated situations in real-time. Domain experts write effective EPL (event processing language) queries to define complex events that are detected. In combination with predictive analytics (PA), which uses mathematical models to predict the future, a framework for predicting complex events can be designed.
+\\
+\\
+In this thesis I describe how predictive event processing works and how a proof-of-concept framework can be built. As prediction tools I use two models: a distance-based model and a feature-based model. The former uses dynamic time warping (DTW) and k-nearest neighbour (kNN) algorithm while the latter employs wavelet analysis and support vector machines (SVMs).
+\\
+\\
+As an application of predictive complex event processing I consider house automation and present a real-life case study for the experimental section. The goal is to predict when a certain variable exceeds a limit value for a certain period of time. I also evaluate the performance of the system.
+\\
+\\
+With two variables, $\mathrm{CO}_2$ and VOC (volatile organic compounds), the first, distance-based model performs better with correct alarm rate of over 75 \% and false alarm rate of under 10 \%. The second, feature-based model turns out to be faster but more difficult to configure properly. More meaningful complex events and more thorough time parameter optimization are suggested for future research.
+
+
+
+
+
+\end{abstractpage}
+
+\mysection{Acknowledgements}
+%\mysection{Preface}
+First, I want to express my deepest gratitude towards my family who has always supported and encoraged me in my studies. You have helped me to achieve yet another goal in my life. Second, I want to thank my supervisor, Ahti Salo, and my instructor, Antti Aalto, for guiding me through the writing process. Third, I want to thank my employer HiQ Finland and especially Jukka-Petri Sahlberg for permitting me to write this thesis for the MMEA research program. I also want to thank the research group of environmental informatics at the University of Eastern Finland and especially Mauno R\"onkk\"o for giving me access to their test data. All in all, thanks to everyone who supported me and helped me through this long but rewarding process.
+\\
+\\
+Albert Einstein once said: \emph{"Once we accept our limits, we go beyond them"}. This thesis used to be one of them. Now I have to accept that my limits have once again moved a big step further.
+
+
+\vspace{5cm}
+Otaniemi, 08.08.2013
+
+\vspace{5mm}
+{\hfill Jussi Kolehmainen \hspace{1cm}}
+
+
+\newpage
+%
+
+\addcontentsline{toc}{section}{Contents}
+\tableofcontents
+
+\mysection{Symbols and abbreviations}
+\subsection*{Symbols}
+
+\begin{tabular}{ll}
+%$|a_{ij}|^2$, $|a_i|^2$ & probability of two electrons having momenta
+%    $\boldsymbol p_i$ and $\boldsymbol p_j$ ($\boldsymbol p_i$ for $|a_i|^2$) \\
+%                 & at any given instant \\
+$\mathbf{AC_d}$ & ROC distance from optimal classifier \\
+\textbf{C} & SVM soft margin parameter \\
+$\mathbf{\gamma}$ & SVM kernel parameter \\
+\textbf{k} & kNN parameter \\
+\textbf{radius} & DTW warping path parameter \\
+\end{tabular}
+
+%\subsection*{Operators}
+
+%\begin{tabular}{ll}
+%$x$ & example
+%\end{tabular}
+
+\subsection*{Abbreviations}
+
+\begin{tabular}{ll}
+\textbf{DTW} & Dynamic Time Warping \\
+\textbf{DWT} & Discrete Wavelet Transform \\
+\textbf{EPA} & Event Processing Agent \\
+\textbf{EPN} & Complex Event Network \\
+\textbf{CEP} & Complex Event Processing \\
+\textbf{kNN} & k-Nearest Neighbor \\
+\textbf{PEPN} & Predictive Event Processing Network \\
+\textbf{ROC} & Receiving Operator Characteristics \\
+\textbf{SVM} & Support Vector Machine \\
+\\
+\textbf{P} & Positives, number positive instances \\
+\textbf{N} & Negatives, number of negative instances  \\
+\textbf{TP} & True Positives \\
+\textbf{FP} & False Positives \\
+\textbf{TN} & True Negatives \\
+\textbf{FN} & False Negatives \\
+\textbf{TPR} & True Positive Rate \\
+\textbf{FPR} & False Positive Rate \\
+\textbf{TNR} & True Negative Rate \\
+\textbf{FNR} & False Negative Rate
+\end{tabular}
+
+
+\cleardoublepage
+\storeinipagenumber
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+\chapter{Introduction}
+\input{1_introduction}
+\clearpage
+
+\chapter{Complex Event Processing}
+\input{2_CEP}
+\clearpage
+
+\chapter{Predictive Analytics}
+\input{3_PA}
+\clearpage
+
+\chapter{Implementation and Experiments}
+\input{4_impexp}
+\clearpage
+
+\chapter{Results}
+\input{5_results}
+\clearpage
+
+\chapter{Conclusions} 
+\input{6_conclusions}
+
+\clearpage
+
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{amsplain}
+\bibliography{bibliography}
+
+\clearpage
+
+%% Liitteet 
+
+
+\end{document}
+
+

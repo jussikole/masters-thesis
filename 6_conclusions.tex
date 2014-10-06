@@ -1,0 +1,47 @@
+
+The goal of this thesis was to develop a framework for predictive complex event processing. By combining CEP and Predictive Analytics (PA) the capabilities of CEP for pattern detection can be taken a step further towards a real-time alarm system. Building this kind of system consists of the following phases
+\begin{enumerate}
+\item{Setting up the sensors}
+\item{Enabling data flow into the CEP engine}
+\item{Identifying the phenomena and describing them with EPL clauses}
+\item{Building and configuring the predictive component to receive alarms}
+\item{Taking necessary actions}
+\end{enumerate}
+
+The first phase, setting up the sensors, requires either setting up physical sensors or simulating ones with a computer software. Since there were data available from a real-life case, it was a easy choice to ask for a permission to use it. This choice, nevertheless, came with a potential risk of the data being uninteresting or too complicated. The two sensors, $CO_2$ and VOC were chosen for testing because of their large value range. The consumption variables, such as electricity and heating, had to be left out because their values were in pulses and not in their actual units. This conversion would have caused too much extra work.
+
+The second phase, the data flow from the sensors into the CEP engine can be further divided into two phases: a data flow from the sensors into our predictive framework and a data flow inside our predictive framework. The former begins with wireless sensors emitting measurements to a server via a router. The latter consists of downloading the data from the server and formatting them to Java objects that can be inserted into the CEP engine.
+
+At the core of the predictive framework is to Esper CEP engine which, as a state-of-the-art open-source solution, is gaining more and more popularity among CEP developers. In this thesis only a small fraction of Esper's capabilities were used. Only relatively simple EPLs with some temporal logic and timers were used. More advanced features, such as context-dependent reasoning and direct database connections, could be used to extend the predictive framework into a more comprehensive house automation software.
+
+The third phase, writing the EPL clauses, requires domain experts to define meaningful complex events. Since I do not have enough experience in environmental issues, a very simple complex event type was chosen. Detecting a variable exceeding a certain limit is, however, an important one according to the Finnish Indoor Society. By their definition, the indoor air quality is solely determined by a set of limits for different variables. \cite{sisailmaluokitus08}
+
+The next step from our ``simple complex events'' would be to detect and predict a combination of variables exceeding a limit. This would give a more comprehensive image of the living conditions. Then, additional independent variables, such as weekday and season, could be used to add cycle detection to the platform. 
+
+The fourth phase is the main focus point of this thesis. The predictive component is a separate CEP network that listens to the original network's inputs (measurements) and outputs (complex events) \cite{Fulop12}. The novel idea of this thesis was to construct the predictors and their labels with CEP. All the previous work done in this area builds the training and testing set manually, or at least they have no mentions of using CEP for that.
+
+The fifth phase requires domain expertise to define the necessary actions. When it comes to limit exceeding complex events that we are investigating in this thesis, a possible action could be opening a window. Other actions include adjusting heating, cooling or ventilation. In case of an emergency situation, such as rising carbon monoxide levels, a loud alarm should be played in order to alert the residents. Since this system is already connected to the outside world, also the authorities could be notified and called automatically in that case.
+
+Taking necessary actions is closely tied with the time parameters in our predictive framework. The time parameters, \emph{waitingTime} and \emph{eventTime}, define the prediction horizon that begins with a warning interval. The warning interval corresponds to the time needed to prevent the complex event from happening. Should a single topic be chosen for additional research, it would definitely be a more  thorough choice of time parameters.
+
+This thesis has two different intersections with real-life applications. First, the motivation for this work stems from the MMEA research project which aims at creating a platform for environmental data exchange. The platform offers interfaces for external applications that can make use of the real-time sensor data. The predictive complex event processing platform that was developed in this thesis could be one of these applications.
+
+Second, this thesis uses test data from ASTEKA project which builds intelligent houses that adapt to changing living conditions. Even though the real-life data is with no doubt very challenging to start with, the framework developed in this thesis showed some potential allowing smooth data flow and some promising result. Actually, the most successful parts of this thesis are related to data handling and integrating all the components together. With relatively little code actual sensor data is used for prediction and alerts are shown to the user.
+
+The problems that were faced during the experimental part were mainly related to the applied methods and the available testing data. First, the used models, especially the Wavelet and SVM based one, have a fairly large number of parameters that affect the performance. For this reason each section in the results chapter is built from different types of results. This approach shows a cross-section of what kind of results can be achieved and how they can be represented in a tabular or a visual form. The parameter optimization needs definitely more investigation before the platform can be said to actually work.
+
+Second, the available testing data was actual data from an actual test house. In real-life the $CO_2$ concentration is not the most interesting variable when it comes to alerting the residents. However, a $CO_2$ sensor located in a small room without mechanical ventilation is sensitive enough to show a lot of regular variation which our platform managed to predict very well. When the mechanical ventilation was installed and the regular peaks disappeared, the performance of our model decreased significantly.
+
+As hypothesized before, the simpler DTW and kNN based model performed better than the more complex Wavelet and SVM model. Our complex event type, a variable exceeding a limit, can be predicted by detecting the rise in that variable. DTW captures this kind of information better probably because it stretches the two time series being compared so that the rising parts are matched. Wavelet transform, on one hand, is able to detect this kind of patterns but, on the other hand, lacks translation invariance, which means that the two signals might not be similar if they are in different phases. There are some methods available to overcome this problem. \cite{struzik99}
+
+As already mentioned before, possible focus points for future research are
+\begin{itemize}
+\item{Better evaluation of what kind of data and which variables can be predicted}
+\item{Defining more meaningful complex event with domain experts}
+\item{Optimizing model parameters more thoroughly}
+\end{itemize}
+
+All of these were investigated to some extent but better results would definitely be obtained by focusing more on these three points. In the light of these shortcomings it is fair to say that the predictive framework developed in this thesis is just a proof-of-concept and still quite far from a real-life application.
+
+
+

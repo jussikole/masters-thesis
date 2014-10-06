@@ -1,0 +1,96 @@
+\section{General}
+Predictive analytics (PA) is a broad field of applied mathematics. First, it includes all the statistical models and empirical methods that are used to create empirical predictions. Second, also predictive power, that is, methods for assessing the quality of predictions is a part of PA. \cite{Shmueli10} Another purpose of PA is to guide theory building, theory testing and relevance assessment. \cite{Dubin69}
+
+One way to classify PA methods is to divide them into predictive models, descriptive models and decision models. Predictive models look for the most significant explanatory variables with which they are able to predict the dependent variables. Descriptive models, in turn, try to find as many relationships as possible, leading to segmented models that describe the world as it is. Decision models use optimization techniques to find the most optimal decision based on possible outcomes. \cite{Fico06}
+
+Another way to classify PA methods is to distinguish between methods that predict the present and methods that shape the future. Predicting the present means applying patterns of current behavior with as much historic data as possible. These methods use classification, regression, clustering and all data mining techniques to predict similar occurrences in the future. Shaping the future has to do with generating new standards after the underlying assumptions have changed. While predicting the present can be thought as fitting a curve into the existing data, shaping the future creates a totally new curve with new assumptions and anticipated behaviors. \cite{Oracle10} In this thesis, all the used methods can be classified as predicting the present.
+
+The methods of PA can also be divided into regression and machine learning  techniques. The simplest model is probably linear regression, which tries to find a linear model between a set of independent variables and a dependent variable by minimizing the squared error \cite{Montgomery12}. Time series models assume that the process we are investigating has some kind of internal structure with autocorrelation, trend or seasonal variation. This structure may be discovered with either time-domain or frequency-domain analysis. \cite{Hamilton94} The former is based on auto-correlation and cross-correlation analysis, while the latter is carried out with spectral or wavelet analysis, which I will talk about more in chapter 3.5.
+
+Machine learning algorithms form a model, based on clustering or historic data, that is able to predict the class of the dependent value without necessarily knowing the exact mathematical structure behind it. As an example of clustering based methods, unsupervised Artificial Neural Networks (ANNs) are biology-inspired complex networks that evolve into a form that can classify new instances into a group with the most similar instances. \cite{Mitchell97} Models based on historic data are called supervised models and they can, for example, find a classifier function that separates the training data most effectively. I will talk more about classifiers in chapter 3.5 when I introduce Support Vector Machines.
+
+
+
+\section{Combining CEP and PA}
+
+The work of Fulop et al. \cite{Fulop12} lists several synergies and differences of CEP and PA which are briefly summarized in this section. 
+
+Complex event processing (CEP) and Predictive Analytics (PA) are similar in the sense that they try to somehow make sense of large datasets, either in real-time or from historic data. The biggest differences between CEP and PA stem from the timing of the reasoning process. While CEP processes data real-time and detects the events only after they have occurred, PA, as the name suggests, tries to predict events by detecting the patterns that lead to them. 
+
+\begin{figure}[here]
+\centering
+\includegraphics[scale=0.7]{images/prediction_value_v2.pdf}
+\caption{Expected value of event detection as a function of time. An optimal prediction is made at the point A. The event happens at the point B, after which detecting the event is still valuable.}
+\label{fig:prediction_value}
+\end{figure}
+
+The (expected) value of detecting an event depends directly on time, which is illustrated in Figure~\ref{fig:prediction_value}. Up to point A, value increases with increased accuracy. This is because long time predictions are not usually accurate. Nevertheless, since an early prediction is more useful than one that is made just a few seconds before, the value begins to fall rapidly. After the point B where the event actually happens, detecting an event is still useful and the value decreases slowly. The optimal prediction point A in Figure~\ref{fig:prediction_value} motivates this thesis' search for a predictive event processing model.
+
+Another difference between CEP and PA is the need for building rules that detect patterns. CEP relies heavily on predefined rules that have to be implemented by a domain expert that knows the complex event in question. This can be considered a weak point of CEP. PA, in turn, aims at automating the rule creation. Of course, PA methods need to be implement, too, but that happens before the model is crafted into a certain scenario. The model should then adapt to different kinds of scenarios. In CEP a specialized model is required for each different scenario.
+
+There are several requirements that should be taken into consideration when designing a predictive CEP system. First, CEP and PA components must be able to communicate with each other so that CEP receives Primary Complex Event (PCE) predictions from PA and PA receives predictors from CEP. Second, integrating the PA component should not affect the existing CEP part nor its maintainability in any way. \cite{Fulop12}
+
+There are two ways to overcome these requirements. The first is to introduce predictive event processing agents (PEPAs) into the Event Processing Network (EPN). The second is to create a separate predictive event processing network (PEPN) that is somehow connected to the original EPN. Only the latter of these options satisfied the condition that the original EPN should not be affected in any way. The maintainability of EPN suffers greatly if PEPAs are mixed with original EPAs. \cite{Fulop12} The implementation chapter describes how this requirement is actually fulfilled. 
+
+
+\section{Predicting with Time Series Classification}
+Our task is to predict whether or not a certain event will happen in a defined time period in the future. Figure~\ref{fig:prediction_time_span} shows an outline of this process. Let's assume that the complex event we are trying to predict occurs between $t_{E,1}$ and $t_{E,2}$. Then, in order to gain advantage from predictive analytics, the prediction should happen before the warning time begins at $t_{P,2}$. We can define a prediction time period to be the interval from $t_{P,1}$ to $t_{P,2}$, which contains the event history available for making the prediction. Thus, we can assume that the prediction happens at $t_{P,2}$ and uses information from $t_{P,1}$ to $t_{P,2}$. In Chapter 4 I will discuss how to choose the interval lengths 
+
+\begin{eqnarray}
+\textbf{windowLength} &=& t_{P,2} - t_{P,1} \\
+\textbf{waitingInterval} &=& t_{E,1} - t_{P,2} \\ 
+\textbf{eventInterval} &=& t_{E,2} - t_{E,1} 
+\end{eqnarray}
+
+\begin{figure}[here]
+\centering
+\includegraphics[scale=0.7]{images/prediction_time_span.pdf}
+\caption{Timing of complex event prediction.}
+\label{fig:prediction_time_span}
+\end{figure}
+
+The event history $h = \{e_1, ..., e_i\}$ in the prediction interval is a multivariate time series, that is, it contains a sequence of numerical vectors. \cite{Xing10} Each vector contains the measurement values from different sensor at a certain point in time. I will design the system so that the CEP engine receives every $\Delta t$ seconds a new event that contains the recent measurement values from all the available sensors. The choice of $\Delta t$ depends on the phenomenon investigated, an issue which I will talk about more in Chapter 4.
+
+We can formulate the prediction process as a binary classification task that contains two classes:
+\begin{enumerate}
+\item{Histories that precede an event}
+\item{Histories that do not precede an event}
+\end{enumerate} 
+
+We can denote theses classes by $w_1$ and $w_2$.
+The task is to learn a classifier $C$, which maps a history $h$ into a class $w$: $C \ : \ h \rightarrow w, \ w \in C$, where 
+\begin{eqnarray*}
+C &=& \{w_1, w_2\} \label{eq:classification} \\
+&=& \{\text{``Event is not going to happen''}, \text{``Event is going to happen''}\}
+\end{eqnarray*}
+
+Time series classification methods can be divided into different categories: distance based methods, feature based methods, model based methods and so on. Two of these, distance based and feature based methods are investigated and tested in this thesis. 
+
+From distance based methods I present $L_p$ norms and Dynamic Time Warping (DTW) as distance measures in co-operation with k-Nearest Neighbor (kNN) and Learning Vector Quantization as classification methods. The empirical section of this thesis employs a model that uses DTW and kNN.
+
+From feature based methods I present Fourier and Wavelet analyses for feature extraction and then Support Vector Machines (SVMs) for classifying the feature vectors.
+
+
+
+\section{Distance Based Time Series Classification}
+\input{3a_distance}
+
+\section{Feature Based Time Series Classification}
+The aim of feature generation is to transform a sequence of time series data into a single vector that has as few dimensions as possible but still contains the relevant information about the time series for the classifying task. This process is a part of the preprocessing step of machine learning. We do this in order to reduce dimensionality, to increase learning accuracy and to improve result comprehensibility. \cite{Yu03}
+
+There is a clear difference between feature selection and feature extraction. The former means choosing a subset from the available variables and using that as a feature vector, which is not an applicable method in the case of a time series as each variable in our multivariate time series is of a too high dimensionality by itself. The latter means mapping the available data into a lower dimensional space with some algorithm. \cite{Yu03} In sections 3.5.1 and 3.5.2 I present a technique for feature extraction by capturing a subset of the signal spectra with wavelet analysis.
+
+Theoretically we could combine all the time series vectors from the prediction interval into one large feature vector that is then used as an input for the classifier $C$. However, as the prediction interval gets longer, we face the curse of dimensionality. The longer the feature vector is, the sparser the data becomes and the less statistically significant the classifying is. Also, the volume of the data increases rapidly and the processing becomes more and more demanding. \cite{Pascual07} For this reason, I describe a way to reduce the dimensionality of the feature vectors.
+
+\input{3d_wavelets}
+\input{3c_feature}
+\input{3e_svm}
+
+
+
+
+\section{Parameter Selection and Model Validation}
+\input{3f_performance}
+
+
+

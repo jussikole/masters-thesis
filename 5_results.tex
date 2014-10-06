@@ -1,0 +1,67 @@
+%\subsection{Class Separability}
+
+
+
+\section{Goodness Indicators}
+\subsection{Classification With DTW and kNN}
+\input{5a_dtwknn}
+
+\subsection{Classification with Wavelets and SVMs}
+\input{5b_waveletsvm}
+
+\section{Computational Performance}
+Standard DTW algorithm has time complexity of $\mathcal{O}(N^2)$, where \emph{N} is the length of the time series. However, the FastDTW library we are using promises time complexity of $\mathcal{O} (N)$ \cite{salvador04}. The training phase of DTW and kNN is $\mathcal{O}(1)$ operation and takes only a few milliseconds because no calculations are performed. The given training set is simply saved into the model. Only when a new instance is classifier, DTW algorithm is run against each training sample and then \emph{k} closest are selected for voting.
+
+\begin{center}
+\begin{figure}[h!]
+\includegraphics[scale=0.7]{images/dtw_knn_performance_timeseries_length.pdf}
+\caption{DTW and kNN based model's performance as a function of time series length.}
+\label{fig:dtw_knn_performance_timeseries_length}
+\end{figure}
+\end{center}
+
+Figure~\ref{fig:dtw_knn_performance_timeseries_length} shows the training time as a function of time series length. Different time series lengths were acquired by varying the \emph{windowLength} parameter from 10 minutes to 4 hours. The smaller the \emph{radius} parameter is, the shorter the calculation time is as the algorithm is stopped earlier. As the authors of FastDTW promised, the time complexity is linear for relatively small time series ($< 2000$ data points). For longer time series it soon becomes second-degree polynomial. \cite{salvador04}
+
+
+
+
+The LibSVM promises time complexity of $\mathcal{O}(l)$, where $l$ is the length of the time series if no kernel evaluations are required and $\mathcal{O}(nl)$ when $n$ kernel evaluations are required \cite{libsvm}. To put it briefly, the SVM training should be linear. 
+
+\begin{center}
+\begin{figure}[h!]
+\includegraphics[scale=0.7]{images/wavelet_svm_performance.pdf}
+\caption{Wavelet and SVM based model's performance as a function of training set size.}
+\label{fig:wavelet_svm_performance}
+\end{figure}
+\end{center}
+
+Figure~\ref{fig:wavelet_svm_performance} shows the testing time of Wavelet and SVM based model when the training set size is held constant at 139 data points. Clearly, increasing the number of test instances increases the execution time linearly. This same applies for DTW and kNN based model. 
+
+If the number of test instances is also increased, the time complexity of DTW and kNN based model is no longer linear but rather follows a polynomial relationship, possibly a second-degree one. This is because each extra testing instance must be evaluated against each extra training set instance. The exact form of this polynomial could be found by regression analysis.
+
+Wavelet and SVM based model, on the other hand, remains at linear computational time despite the increased number of both training and testing samples. This follows from the linear time requirements of both discrete Haar transform and  
+
+\section{Discussion}
+The biggest difference between the two models was the computational time needed to train and test the models. DTW and kNN based model takes about few minutes while with Wavelet and SVM based model only a few seconds are enough. 
+
+Even though the FastDTW algorithm uses various methods, such as data abstraction and warping path constraints, to speed up the calculations, it still is a relatively slow algorithm. There is no way to decrease the number of DTW calculations as each testing instance must be evaluated against each training instance.
+
+Calculating the Discrete Haar Wavelet Transform for small time series is not computationally demanding. It only consists of a series of addition and subtraction operations until the desired level is achieved. Weka Wavelet library doesn't provide any method to manually set to level up to which the transformation is performed. It would be useful to evaluate the classifier performance as a function level used for Haar Transform.
+
+The core of LibSVM is written in C programming language which achieves better performance than if it was written in pure Java. LibSVM uses two techniques, shrinking and caching, to decrease the iteration time \cite{libsvm}. The shrinking method identifies and removes some bounded elements resulting in a smaller optimization problem. The quite advanced mathematics behind this method are not review here. The caching method stores kernel evaluations into memory for later use and thus avoids recalculations.
+
+When it comes to classification performance, it was shown that regular peaks are much more predictable than ones that occur relatively rarely. With $CO_2$ the DTW and kNN based model achieved an acceptable performance with accuracy being over $80 \%$, True Positive Rate (TPR) over $75 \%$ and False Positive Rate (FPR) under $10 \%$. 
+
+When comparing a model that was trained once to a model that was trained with regular intervals, no differences were found. The reason for these findings might be that the signal was close to a stationary process whose mean and variance remained about the same for the whole testing period. It was also shown that the installation of mechanical ventilation system changed the indoor air conditions dramatically and the performance of the classifier plummeted.
+
+With VOC variable it was shown that the system's time parameters have a major impact on the performance. For example, the optimal choice of \emph{windowLength} parameter may increase the accuracy from about $60 \%$ to over $75 \%$. The number of indoor air particles decreased in the winter and the classifier failed heavily after that.
+
+
+The Wavelet and SVM based model is difficult to tune. In addition to system's time parameters, it has two parameters, \emph{C} and $\gamma$ that derive from the mathematical equations. With $CO_2$ it was shown that both these parameters have optimal values that maximize the accuracy and minimize the $AC_d$. However, the testing accuracy varied a lot compared to the first model. LibSVM provides additional parameters, such as $\epsilon$ for stopping the iteration and weight parameters for different classes, that are sure to affect the observed performance but were not investigated here.
+
+The second model is much more sensitive to the available data. Even small changes in the time parameters transformed the classifier from a nearly perfect one to a completely useless one. Especially with VOC, which has sharp peaks occurring rarely, this model lacks some kind of dynamic time parameter tuning that would optimize the length and the difference of the time windows on the go.
+
+All in all, the results were quite close to my expectations. The easy-to-use DTW and kNN based model outperformed the more sophisticated Wavelet and SVM based model. The latter model, however, showed potential for predicting regular peaks in less time then the first model. With a little bit more parameter tuning I am pretty confident that Haar Wavelets and SVMs can work together with reasonable results.
+
+
+

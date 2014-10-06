@@ -1,0 +1,65 @@
+
+
+
+\subsection{Linear Classifiers}
+In this section I discuss the special case of linearly separable classes. If the input space is linearly separable, we can use a linear hyperplane to separate the two classes. \cite{tappen10} As explained in Chapter 3.3, we have two classes, $w_1$ and $w_2$, for which the $l$-dimensional hyperplane is
+
+\begin{equation}
+g(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + w_0 = 0,
+\end{equation}
+where $\mathbf{x}$ is a feature vector, $\mathbf{w}$ is the weight vector, and $w_0$ is the threshold. The threshold value is needed to cover the case of the hyperplane not crossing the origin. We can extend the vectors into $(l+1)$-dimensional space by defining
+\begin{eqnarray}
+\mathbf{x'} = \left [ \mathbf{x}^T, 1 \right ]^T \\
+\mathbf{w'} = \left [ \mathbf{w}^T, w_0 \right ]^T.
+\end{eqnarray}
+
+From now on the variables $\mathbf{x}$ and $\mathbf{w}$ refer to $\mathbf{x'}$ and $\mathbf{w'}$. Now the feature vectors $x$ have the properties
+\begin{eqnarray}
+\mathbf{w}^T \mathbf{x} > 0 &\;\;& \forall \mathbf{x} \in w_1 \\
+\mathbf{w}^T \mathbf{x} < 0 &\;\;& \forall \mathbf{x} \in w_2.
+\end{eqnarray}
+
+The problem is now the choice of the weight vector $w$. One way to tackle the problem is the perception algorithm which defines a perception cost as
+\begin{equation}
+J(\mathbf{w}) = \sum_{\mathbf{x} \in Y} (\delta_x \mathbf{w}^T \mathbf{x}),
+\end{equation}
+where $Y$ is the set of training vectors that are misclassified with the weigh vector $w$ and $\delta_x = -1$ if $\mathbf{x} \in w_1$ and $\delta_x = +1$ if $\mathbf{x} \in w_2$. Since the cost $J(\mathbf{w})$ is always positive, continuous and piecewise linear, it can be minimized with a gradient descent method \cite{tappen10}:
+\begin{eqnarray}
+\mathbf{w(t+1)} &=& \mathbf{w(t)} - \rho_t \frac{\partial J(\mathbf{w})}{\partial \mathbf{w}} \\
+&=& \mathbf{w(t)} - \rho_t \sum_{\mathbf{x} \in Y} \delta_x \mathbf{x}.
+\end{eqnarray}
+
+The iteration is performed until all the training instances have been classified correctly. A variation of perception algorithm loops through the training instances one by one and updates the weight vector on each instance.
+
+Even though the classes are not linearly separable, we can find an optimal linear classifier that minimizes the classification error in some sense. One way to find the optimal $w$ is to use mean square error estimation which tries to minimize the cost function
+\begin{equation}
+J(\mathbf{w}) = E[|y - \mathbf{x}^T \mathbf{w}|^2],
+\end{equation}  
+
+where $y$ is the desired output; in this case $y = 1$ for $w_1$ and $y = -1$ for $w_2$. \cite{gutierrez11} A required condition for the minimum is
+\begin{equation}
+\frac{\partial J(\mathbf{w}}{\partial \mathbf{w}} = 2 E[\mathbf{x}(y - \mathbf{x}^T \mathbf{w})] = 0.
+\end{equation}
+
+The optimal weigh vector is then
+\begin{equation}
+\mathbf{w} = R_x^{-1} E[\mathbf{x}y],
+\end{equation}
+where $R_x$ is the correlation matrix of $\mathbf{x}$ and $E[\mathbf{x}y]$ is the cross-correlation vector that have to be estimated from the learning set.
+
+Another way is to use least squares methods that use the cost function
+\begin{equation}
+J(\mathbf{w}) = \sum_{i=1}^N (y_i - \mathbf{x}_i^T \mathbf{w})^2 = \sum_{i=1}^N e_i^2
+\end{equation} 
+
+Then, by differentiating with respect to $\mathbf{w}$ we get
+\begin{eqnarray}
+&& \sum_{i=1}^N \mathbf{x}_i (y_i - \mathbf{x}_i^T \mathbf{w}) = 0 \\
+&\Leftrightarrow& (\sum_{i=1}^N \mathbf{x}_i \mathbf{x}_i^T) \mathbf{w} = \sum_{i=1}^N (\mathbf{x}_i y_i) \\
+&\Leftrightarrow& (\mathbf{X}^T \mathbf{X}) \mathbf{w} = \mathbf{X}^T \mathbf{y} \\
+&\Leftrightarrow& \mathbf{w} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y},
+\end{eqnarray}
+where $\mathbf{X} = [\mathbf{x}_1, ..., \mathbf{x}_N]^T$, $\mathbf{y} = [y_1, ..., y_N]^T$, and $\mathbf{X}^T \mathbf{X}$ is sample correlation matrix which can be estimated from the available data. \cite{gutierrez11}
+
+
+

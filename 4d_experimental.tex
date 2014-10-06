@@ -1,0 +1,152 @@
+\subsection{Complex Event Definitions}
+A simple Complex Event is a sensor value exceeding a certain predefined limit for a certain time. For each sensor type (temperature, $CO_2$, etc.) we can write a Java classes
+\begin{Verbatim}[xleftmargin=1.5em]
+public class ValueClassification {
+	Set<Sensor> sensors;
+	List<ValueClassificationLimit> limits;
+}
+\end{Verbatim}
+and
+\begin{Verbatim}[xleftmargin=1.5em]
+public class ValueClassificationLimit {
+	String name;
+	double limit;
+	int level;
+}
+\end{Verbatim}
+
+The former represents a classification scale for one type of sensors and the latter is an actual limit. The \emph{limit} attribute is the lower bound limit for an measurement value to belong to that class. The \emph{level} attribute gets integer values beginning from 0 and can be used to display only \emph{ClassificationEvent}s beginning from a given level. It can be thought as severity of the event.
+
+Now we can further define a complex event that rises from exceeding a classification limit
+\begin{Verbatim}[xleftmargin=1.5em]
+public class ClassificationEvent extends ComplexEvent {
+	Date timestamp;
+	Sensor sensor;
+	ValueClassificationLimit limit;
+	String length;
+},
+\end{Verbatim}
+which is a sub-class of \emph{ComplexEvent}. It contains all the relevant information about the event: the timestamp of the event, the sensor that caused the event, the limit value which was exceeded and the length of time window that triggered the event. 
+
+An Event Processing Agent (EPA) called \emph{ClassificationEPA} loads the classification limits from the database and builds the EPL clauses that detect the classification events. Let's say we have a sensor with \emph{SensorID} 50 and the complex event happens when the measurement value exceeds the value of 100 for 20 minutes. Then, the following EPL detects the classification event of level 2 and builds a complex event that is sent to the CEP engine
+\begin{Verbatim}[xleftmargin=1.5em]
+INSERT INTO
+	ClassificationEvent
+SELECT 
+	unit.timestamp AS time,
+	unit.value('50').sensor AS value, 
+	2 AS minLevel,
+	'20 min' AS windowLength 
+FROM
+	pattern[
+		every (timer:interval(20 min) 
+		and unit=MeasurementUnit(value('50').value > 100))		
+	]	
+\end{Verbatim}
+
+Next, we need to specify the limits for each measurand. For $CO_2$ and VOC (Volatile Organic Compounds) we can use the indoor air quality classes defined by the Finnish Indoor Air Society. \cite{sisailmaluokitus08} The classification supports the evaluation of construction and renovation processes from the air quality's point of view.
+
+Indoor Air Society has defined three classes, S1, S2 and S3, which describe the indoor air quality in the following way
+\begin{description}
+\item[S1: Individual]{Excellent indoor air quality. No detectable odors or sources of pollutants. Controllable temperatures with no overheating.}
+\item[S2: Good]{Good indoor air quality. No disruptive odors or sources of pollutants. No detectable breeze but overheating possible during summer.}
+\item[S3: Satisfactory]{Air quality and temperature conditions fulfill construction requirements.}
+\end{description}
+
+For $CO_2$ and VOC the class limits are shown in Table~\ref{table:voc_co2_quality}. For VOC the corresponding values from our sensor are shown in parentheses.
+
+
+\begin{table}[h!]
+\begin{center}
+  \caption{Air quality classifications for $CO_2$ and VOC.} 
+  \begin{tabular}{c|c|c}
+  	Class & $CO_2$ (ppm) & VOC ($\mu g/m^3$) \\
+	\hline
+	S1 & 0-700 & 0-200 (0-10) \\
+	S2 & 700-900 & 200-300 (10-20) \\
+	S3 & 900-1200 & 300-600 (20-30) \\
+	S4 & >1200 & >600 (>30) 
+  \end{tabular}
+  \label{table:voc_co2_quality}
+\end{center}
+\end{table}
+
+The particle detector counts the number of small particles in two size groups: particles with diameter between 1 $\mu$m and 5 $\mu$m and particles with diameter greater than 5 $\mu$m. The former group consists of fine dust, smoke, mold and bacteria while the latter is made of coarse dust, pollen and dust mite casings. The detector in our test house, Dylos DC1100, is calibrated to detect particles half the size mentioned before, that is 0.5 $\mu$m and 2.5 $\mu$m.
+
+On the backside of the particle detector device, there is an air quality chart defined for the smaller particle size. This classification is presented in Table~\ref{table:particles}. The first column defines the classification in our system. The other two columns have been read from the device's backside. In the range 0-300 three classes, excellent, very good and good, have been combined into one class, PC1.
+
+\begin{table}[h!]
+\begin{center}
+  \caption{Air quality classifications for $CO_2$ and VOC.} 
+  \begin{tabular}{c|c|c}
+  	Class & Particle count & Description \\
+	\hline
+	PC1 & 0-300 & Good/Excellent \\
+	PC2 & 300-1050 & Fair \\
+	PC3 & 1050-3000 & Poor \\
+	PC4 & >3000 & Very Poor
+  \end{tabular}
+  \label{table:particles}
+\end{center}
+\end{table}
+
+
+Similar classifications can be defined for heating and electricity consumption by determining the class ranges from the historical data. In more detail, the ranges were chosen to cover most often occurring peak values during the turning of the season. In this way, the most relevant complex events could be created for each time period (time of year). The classes are presented in table~\ref{table:particles}
+
+\begin{table}[h!]
+\begin{center}
+  \caption{Classifications for electricity and heating.} 
+  \begin{tabular}{c|c|c|c}
+  	Electricity Class & Consumption (kW) & Heating Class & Consumption (kW) \\
+	\hline
+	EC1 & 0-2 & HC1 & 0-10 \\
+	EC2 & 2-3 & HC2 & 10-20 \\
+	EC3 & 4-5 & HC3 & 20-30 \\
+	EC4 & >5 & HC4 & >30			
+  \end{tabular}
+  \label{table:particles}
+\end{center}
+\end{table}
+
+
+%\subsubsection*{Multiple Classification Event}
+%In many real-life applications a single parameter exceeding a limit value does not necessarily mean anything. However, two or three sensors showing increased levels may indicate there is something seriously
+
+
+\subsection{Selecting Parameters and Running the Tests}
+
+Two different prediction schemes are tested. The first starts with a training period of \emph{trainingDays} days and continues with a series of testing periods of length \emph{testingDays} for the rest of the data. The latter first trains the model with \emph{trainingDays} days and then runs \emph{testingBatches} single tests of length \emph{testingDays}. This is process is then repeated until the data ends. 
+
+A long data set may show radical changes in indoor air quality conditions. If that is the case, then the second testing scheme which trains the model more often should perform better. This is one of the main focus points of the experimental section.
+
+Our data collection phase has five different constants which were introduced in the previous chapters. A clarification for the first three parameters was shown in Figure 2.
+
+\begin{description}
+\item[windowLength]{Length of measurement vector that is used as a predictor.}
+\item[waitingInterval]{Part of the prediction horizon that is ignored.}
+\item[eventInterval]{Part of the prediction horizon which determines the class of the predictor depending whether or not a complex event happens within it.}
+\item[windowDifference]{Determines how often a new predictor is created. Difference between two predictors' start points.}
+\item[exceedTime]{Determines the minimum time interval that triggers a classification event, that is, a sensor value exceeds a certain limit.}
+\end{description}
+
+Depending on the sensor, a certain combination of these parameters works better. For each sensor, each parameter is given a set of possible values. Then, the tests are run for each combination of parameters and the best combination is selected. The possible values are selected by inspecting the time series graph.
+
+In addition to these parameters, the prediction models have parameters of their own, too. Each training process is run as a grid search and the best combination of the model parameters is used in the testing phase. For DTW and kNN based model those parameters are
+\begin{description}
+\item[radius]{Maximum deviation from the optimal path in DTW (see Chapter 3.4.2). Possible values: 5 and 50.}
+\item[k]{The only parameter for k-Nearest Neighbour algorithm (see Chapter 3.4.3). Possible values: 3, 7 and 15.}
+\end{description}
+
+The selected possible values produce a total of $2 \cdot 3 = 6$ combinations for the grid search. The smaller the \emph{radius} for DTW is, the less accurate the algorithm is because the allowed deviation from the optimal path is smaller. The value of \emph{k} for kNN determines how sensitive the classifier is to noise; the larger the parameter is, the less sensitive the classifier is to noise \cite{everitt11}.
+
+For SVM the parameter grids were presented in Chapter 3.7.6.
+\begin{description}
+\item[$\mathbf{\gamma}$]{Parameter for the Gaussian Kernel. $a_0 = 3$}
+\item[C]{Soft margin parameter. $C_0 = 5$}
+\end{description}
+
+The selected values produce a total of $7 * 6 = 42$ combinations for the grid search.
+
+
+
+

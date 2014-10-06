@@ -1,0 +1,58 @@
+\section{Background}
+As the size of the digital universe, that is, the total size of digital data in the world is approaching zettabytes (trillion gigabytes) \cite{IDC},  more and more ways are needed to make sense of that information. One of the biggest technology trends in this decade, big data refers to the analysis of large volumes of data. The definition of the term big data varies a lot but some common characteristics can usually be found: conventional database systems are not enough because the data is too big, moves too fast or does not fit in the current data structures. \cite{Dumbill12}
+
+Complex event processing (CEP) can be thought as a branch of big data in which the speed of the data flow is too much for the ordinary databases to handle. CEP tackles this issue by providing event-driven processing, for example pattern detection and causality analysis, with extremely low latencies. \cite{CEP10} It reverses the idea of conventional databases: instead of running queries against an existing data set, CEP uses predefined queries against which the data is run.
+
+Despite these evident advantages of CEP in real-time data processing, it is only a technological opportunity without domain expertise. Like a database expert writes complex SQL queries that return the desired dataset, a CEP expert writes EPL queries that filter the data flow in some way. However, it is possible to reduce the amount of human work needed by extending a CEP engine with other advanced technologies, such as machine learning (ML) and predictive analytics (PA). \cite{Fulop12} In this thesis, I will present a framework for predictive complex event processing (PCEP) that is capable of predicting an event beforehand by learning the pattern that precedes the event.
+
+A promising field of application for complex event processing is ambient intelligence, or house automation, which comprises smart homes that are able to change the living environment depending on various indicators. \cite{Augusto04} Smart homes gather information, for instance, about the whereabouts of the people living in them, air quality and electricity consumption. From these factors the smart homes can then adjust heating, ventilation and lights accordingly. CEP can provide an efficient platform for this real-time data gathering and analysis. This thesis contains a real-world study case from the field of house automation. By combining complex event processing, predictive analytics, and sensor data, smart homes can be made to think one step ahead.
+
+The learning and prediction phase are implemented with relatively new techniques, namely Wavelet Analysis and Support Vector Machines (SVMs). While Fourier Transform captures only the frequency domain properties of a signal, wavelets are localized in both time and frequency domains. \cite{Fong04} Thus, wavelets can be used to extract informative patterns from sensor data. These patterns, then, are classified with  binary classifiers, SVMs, into patterns that precede certain events and patterns that do not.
+
+As a comparative method a k-Nearest Neighbor algorithm in combination with Dynamic Time Warping (DTW) measure is used. DTW is an extension of Euclidean Distance and it is more suitable for comparing time series.
+
+This thesis is part of a five-year research program called The Measurement, Monitoring and Environmental Assessment (MMEA). The program aims at creating new tools for environmental data usage in both consumer and industry sector. The environmental data available from sensor data producers will be made available to data consumers in an open-source marketplace where the parties can connect with their own software. \cite{MMEA}
+
+
+\section{Motivation for Predictive Event Processing}
+A system that is capable of predicting events instead of just detecting them can prevent undesirable conditions from happening. An apparent field of application where these undesirable conditions might be harmful for humans is house automation. Moreover, a system like this can save energy by adjusting control variables more efficiently and provide the residents automated changes of the living conditions. \cite{Skon}
+
+A good example of harmful living conditions is the rise in the concentration of carbon monoxide, which is a highly toxic gas. Being completely colorless, odorless and tasteless, it can only be detected with specific sensors. However, detecting the risen concentration is not enough as the poisonous gas is already present and the residents are in danger. By detecting the increase the house could alert the residents and set the ventilation to full-speed. \cite{Yeganeh12} Another example of harmful situation that could be avoided with a predictive system is flood. The rise in the water level that leads to a flood must be distinguished from the normal seasonal variation. \cite{Verbunt07} 
+
+An intelligent control of heating, especially floor heating, can create significant energy savings because of the long delay between controlling the heating settings and the actual heating effects. In a classical heating system, such as a radiator, the delay does not need to be taken into account because it reacts to the control in minutes and emits its energy to the surroundings. An intelligent floor heating, however, requires predicting the future energy prices and outside temperatures, because the floor should be heated during off-peak hours when the prices are lower or when outside temperatures are about to fall. \cite{Chen11}
+
+Comfortable living conditions are not achieved by merely avoiding harmful conditions. A constant temperature, which increases living convenience remarkably, cannot be maintained if the heating system does not adapt to substantial changes in outside temperature beforehand. Also the concentration of volatile organic compounds (VOC), which is one of the test cases in this thesis, should be kept as low as possible in order to maintain good air quality. Again, a predictive component with machine learning algorithms is needed to adjust the ventilation before the concentration hits a critical level. The system should also adapt to the residents' lifestyle and schedule the changes in indoor air conditions accordingly. \cite{Skon}
+
+
+In addition to house automation, predictive event processing can be used in such fields as financial markets and traffic control. As the stock market is nowadays mostly run by automated algorithms, the speed of data processing is a critical factor. Combined with predictive machine learning components, such system could attain crucial advantage against its competitors. Traffic control system, in turn, could predict traffic jams from past data. By varying speed limits and guiding vehicles to less occupied roads, it could reduce emissions and travel times. \cite{Bellemans06}
+
+
+\section{Research Questions and The Scope of This Thesis}
+Complex Event Processing (CEP) is mostly used for detecting known patterns in the data stream. When CEP is used to analyze our surrounding world, it is relatively easy to detect a certain situation that can be undesirable for humans, animals or some materials. However, the actions to prevent those conditions from happening should usually be taken long before that as it was mentioned in the previous section.
+
+The main research question of this thesis is to formulate a framework for combining CEP and Predictive Analytics (PA). There is plenty of research done from both areas but not many papers have dealt with combining them. The most important inspiration for this thesis is the work done by Hungarian scientist Lajos Jeno F\"ul\"op and his colleagues at Nokia Siemens Network. They tried to detect and predict the number of persons entering and leaving a building. Their application employed decision tree algorithms, such as BFTree, for detecting conditions that precede a traffic peak. \cite{Fulop12}
+
+One of the novel topics in this thesis is the data handling with CEP. The framework not only detects the complex events with CEP but also creates sliding windows for collecting the data training and labeling it into positive and negative samples. The goal of this approach is to test the capabilities of CEP for more than just its main purpose, detection of events that have already been occurred.
+
+The two models used in this thesis were chosen by suggestions from research papers and literature. The first model, which uses DTW and kNN, is a very simple approach for time series classification. DTW has been used in many research applications and has been proven to achieve one of the smallest error rates with many data sets (e.g. \cite{keogh05}).
+
+The combination of Wavelets and SVMs were chosen as our second model because it represents a much more modern approach. Even though Haar Wavelets were first discovered in the early 1900s, the theory of Wavelets has been evolving still in the 2000s in the form of image compression and trend detection \cite{waisberg11}. The Support Vector Machines (SVMs) were first mentioned in 1979, but formally introduced by Vladimig N. Vapnik as late as in 1995 \cite{bosswell02}.
+
+In the light of past results with DTW and SVM based classification it would be a big surprise if the latter would achieve better performance. \cite{keogh05} \cite{Hautakangas11} The main reason for this is that tuning of both Wavelets and SVMs is much more challenging task than using simple DTW and kNN based model which has only two parameters.
+
+
+
+
+\section{Structure of This Thesis}
+Chapters 2.1 and 2.2 present the principles of complex event processing (CEP). Chapter 2.3 introduces a CEP Engine called Esper which is used in the experimental part of this thesis. The Event Processing Language (EPL) for Esper is also reviewed. Chapter 2.4 briefly reviews some applications of CEP.
+
+Chapter 3.1 defines predictive analytics (PA) and Chapter 3.2 discusses how it can be integrated with CEP. Chapter 3.3 formulates the problem for time series prediction. Chapters 3.4 and 3.5 present mathematical models for time series prediction. The former focuses on distance based methods while the latter describes what feature based classification is. Chapter 3.6 shows how the performance of these methods can be evaluated.
+
+Chapter 4 begins with introducing the case study and the available test data. Then, Chapter 4.2 continues with describing the implementation of a Predictive Event Processing Network (PEPN). Chapter 4.3 briefly reviews the MMEA platform architecture and explains how the predictive component could be integrated. Chapter 4.4 defines the complex events we are trying to predict and presents methods for parameter tuning.
+
+Chapter 5 presents the performance results of the classifiers. Then, it discusses computational performance.
+
+Chapter 6 sums up the results of this thesis and discusses further research possibilities from the field of predictive complex event processing.
+
+
+
